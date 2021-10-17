@@ -1,25 +1,65 @@
+import axios from 'axios';
 import { BrowserRouter, Switch, Route } from 'react-router-dom';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Home from './components/Home';
 import Navbar from './components/Navbar';
 import BookManagement from './components/BookManagement';
 
 function App() {
-  const [books, setBooks] = useState([
-    { _id: 1, judul: 'Laskar Pelangi', pengarang: 'Andrea Hirata', harga: 80000, stok: 7 },
-    { _id: 2, judul: 'Bumi', pengarang: 'Tere Liye', harga: 85000, stok: 5 }
-  ]);
+  const [books, setBooks] = useState([]);
+
+  useEffect(() => {
+    retrieveData();
+  }, []);
+
+  const retrieveData = () => {
+    axios.get('http://localhost:4000/book')
+      .then((response) => {
+        setBooks(response.data);
+      })
+      .catch(function (error) {
+        console.error(error);
+      })
+  }
+
   const storeData = (inputBook) => {
-    console.log(inputBook);
-    alert('Data successfully saved');
+    //console.log(inputBook);
+    //alert('Data successfully saved');
+
+    axios.post('http://localhost:4000/book/add', inputBook)
+      .then((res) => {
+        setBooks((prevBooks) => [...prevBooks, inputBook]);
+        alert('Data successfully saved');
+      })
+      .catch((error) => {
+        console.error(error.response.data);
+      });
   }
   const updateData = (inputBook) => {
-    console.log(inputBook);
-    alert('Data successfully updated');
+    //console.log(inputBook);
+    //alert('Data successfully updated');
+
+    axios.put(`http://localhost:4000/book/update/${inputBook._id}`, inputBook)
+      .then((res) => {
+        retrieveData();
+        alert('Data successfully updated');
+      })
+      .catch((error) => {
+        console.error(error.response.data);
+      });
   }
   const deleteData = (book) => {
-    console.log(book);
-    alert('Data successfully deleted');
+    //console.log(book);
+    //alert('Data successfully deleted');
+
+    axios.delete(`http://localhost:4000/book/delete/${book._id}`)
+      .then(() => {
+        retrieveData();
+        alert('Data successfully deleted');
+      })
+      .catch((error) => {
+        console.error(error.response.data);
+      });
   }
   return (
     <div>
